@@ -18,27 +18,29 @@ public class GdeController {
 
     @GetMapping("/")
     public String home() {
-        return "<html><head><meta charset=\"utf-8\"></head><body>"
+        return pageHead()
+                + "<div class=\"page\">"
+                + "<div class=\"auth\"><a href=\"/login-page\"><button class=\"btn btn-link\">Авторизация</button></a></div>"
                 + "<h1>Система РАСХОД</h1>"
-                + "<div style=\"margin-bottom:16px\">"
-                + "<button disabled style=\"margin-right:6px\">1</button>"
-                + "<button disabled style=\"margin-right:6px\">2</button>"
-                + "<button disabled style=\"margin-right:6px\">3</button>"
-                + "<a href=\"/vzv4\"><button style=\"margin-right:6px\">4</button></a>"
-                + "<a href=\"/all\"><button style=\"margin-right:6px\">общий список</button></a>"
-                + "<a href=\"/login-page\" style=\"float:right\"><button>Авторизация</button></a>"
+                + "<div class=\"subtitle\">Интерфейс управления (кнопки пока неактивны)</div>"
+                + "<div class=\"controls\">"
+                + "<button class=\"btn btn-large\" disabled>1</button>"
+                + "<button class=\"btn btn-large\" disabled>2</button>"
+                + "<button class=\"btn btn-large\" disabled>3</button>"
+                + "<a href=\"/vzv4\"><button class=\"btn btn-large\">4</button></a>"
+                + "<a href=\"/all\"><button class=\"btn btn-large\">общий список</button></a>"
                 + "</div>"
-                + "</body></html>";
+                + "</div></body></html>";
     }
 
     @GetMapping("/vzv1")
-    public String vzv1() { return "<html><body><h2>VZV1 - пока пусто</h2></body></html>"; }
+    public String vzv1() { return basicPage("VZV1 - пока пусто"); }
 
     @GetMapping("/vzv2")
-    public String vzv2() { return "<html><body><h2>VZV2 - пока пусто</h2></body></html>"; }
+    public String vzv2() { return basicPage("VZV2 - пока пусто"); }
 
     @GetMapping("/vzv3")
-    public String vzv3() { return "<html><body><h2>VZV3 - пока пусто</h2></body></html>"; }
+    public String vzv3() { return basicPage("VZV3 - пока пусто"); }
 
     @GetMapping("/vzv4")
     public String vzv4() {
@@ -54,14 +56,15 @@ public class GdeController {
 
     @GetMapping("/login-page")
     public String loginPage() {
-        return "<html><body><h2>Авторизация / Регистрация (не работает)</h2></body></html>";
+        return pageHead() + "<div class=\"page\"><h2>Авторизация / Регистрация (не работает)</h2></div></body></html>";
     }
 
     private String renderTable(List<GroupMember> members, String title) {
         StringBuilder html = new StringBuilder();
-        html.append("<html><head><meta charset=\"utf-8\"></head><body>");
+        html.append(pageHead());
+        html.append("<div class=\"page\">");
         html.append("<h1>").append(title).append("</h1>");
-        html.append("<table border=\"1\" cellpadding=\"6\">");
+        html.append("<table>");
         html.append("<thead><tr><th>ID</th><th>ФИО</th><th>Взвод</th><th>группа</th><th>местонахождение</th></tr></thead>");
         html.append("<tbody>");
         for (GroupMember m : members) {
@@ -73,8 +76,16 @@ public class GdeController {
                 .append("<td>").append(m.location()).append("</td>")
                 .append("</tr>");
         }
-        html.append("</tbody></table></body></html>");
+        html.append("</tbody></table></div></body></html>");
         return html.toString();
+    }
+
+    private String pageHead(){
+        return "<html><head><meta charset=\"utf-8\"><link rel=\"stylesheet\" href=\"/styles.css\"></head><body>";
+    }
+
+    private String basicPage(String text){
+        return pageHead() + "<div class=\"page\"><h2>"+text+"</h2></div></body></html>";
     }
 
 }
