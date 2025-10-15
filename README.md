@@ -14,4 +14,3 @@ To run:
 =======
 # Gde_service
 Service of "tracking" where are peple of certain gruop, based on their checks. The main features are: login system, keeping in memeory, admin access for elder people in groups etc.
->>>>>>> e2cc76a3abc9a907e41b8b360d851f883a3e51fe
