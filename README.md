@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 Gde search skeleton project. This project provides a minimal Spring Boot skeleton with a simple
 in-memory service that returns "hello world" for searches by default.
 
@@ -11,7 +10,4 @@ Structure:
 To run:
 1. Use the Maven wrapper: `./mvnw.cmd spring-boot:run`
 2. Call `http://localhost:8080/api/search?term=example`
-=======
-# Gde_service
-Service of "tracking" where are peple of certain gruop, based on their checks. The main features are: login system, keeping in memeory, admin access for elder people in groups etc.
->>>>>>> e2cc76a3abc9a907e41b8b360d851f883a3e51fe
+
