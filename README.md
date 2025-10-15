@@ -10,4 +10,3 @@ Structure:
 To run:
 1. Use the Maven wrapper: `./mvnw.cmd spring-boot:run`
 2. Call `http://localhost:8080/api/search?term=example`
-
