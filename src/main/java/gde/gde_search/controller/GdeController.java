@@ -22,11 +22,10 @@ public class GdeController {
                 + "<div class=\"page\">"
                 + "<div class=\"auth\"><a href=\"/login-page\"><button class=\"btn btn-link\">Авторизация</button></a></div>"
                 + "<h1>Система РАСХОД</h1>"
-                + "<div class=\"subtitle\">Интерфейс управления (кнопки пока неактивны)</div>"
                 + "<div class=\"controls\">"
-                + "<button class=\"btn btn-large\" disabled>1</button>"
-                + "<button class=\"btn btn-large\" disabled>2</button>"
-                + "<button class=\"btn btn-large\" disabled>3</button>"
+                + "<button class=\"btn btn-large\" disabled>1</button>"//пропишу полный спиок\подключу бд и разблокирую
+                + "<button class=\"btn btn-large\" disabled>2</button>"//и тут
+                + "<button class=\"btn btn-large\" disabled>3</button>"//и здесь не забыть
                 + "<a href=\"/vzv4\"><button class=\"btn btn-large\">4</button></a>"
                 + "<a href=\"/all\"><button class=\"btn btn-large\">общий список</button></a>"
                 + "</div>"
@@ -45,32 +44,49 @@ public class GdeController {
     @GetMapping("/vzv4")
     public String vzv4() {
         List<GroupMember> members = service.getAll();
-        return renderTable(members, "список взвода 4");
+        return renderTableWithBack(members, "Список взвода 4");
     }
 
     @GetMapping("/all")
     public String all() {
         List<GroupMember> members = service.getAll();
-        return renderTable(members, "общий список");
+        return renderTableWithBack(members, "Общий список");
     }
 
     @GetMapping("/login-page")
     public String loginPage() {
-        return pageHead() + "<div class=\"page\"><h2>Авторизация / Регистрация (не работает)</h2></div></body></html>";
+        return pageHeadWithBack()
+            + "<div class=\"page\">"
+            +   "<div class=\"login-container\">"
+            +     "<h1>Login</h1>"
+            +     "<form class=\"login-form\">"
+            +       "<div class=\"form-group\">"
+            +         "<input type=\"text\" placeholder=\"ФИО\" class=\"form-input\" required>"
+            +       "</div>"
+            +       "<div class=\"form-group\">"
+            +         "<input type=\"password\" placeholder=\"Пароль\" class=\"form-input\" required>"
+            +       "</div>"
+            +       "<button type=\"submit\" class=\"btn btn-large\">Вход</button>"
+            +     "</form>"
+            +     "<div class=\"help-link\"><a href=\"#\" class=\"small-link\">где взять пароль?</a></div>"
+            +   "</div>"
+            + "</div></body></html>";
     }
 
-    private String renderTable(List<GroupMember> members, String title) {
+   
+    private String renderTableWithBack(List<GroupMember> members, String title) {
         StringBuilder html = new StringBuilder();
-        html.append(pageHead());
+        html.append(pageHeadWithBack());
         html.append("<div class=\"page\">");
         html.append("<h1>").append(title).append("</h1>");
         html.append("<table>");
-        html.append("<thead><tr><th>ID</th><th>ФИО</th><th>Взвод</th><th>группа</th><th>местонахождение</th></tr></thead>");
+        html.append("<thead><tr><th>ID</th><th>ФИО</th><th>Взвод</th><th>Группа</th><th>Местонахождение</th></tr></thead>");
         html.append("<tbody>");
         for (GroupMember m : members) {
             html.append("<tr>")
                 .append("<td>").append(m.id()).append("</td>")
-                .append("<td>").append(m.fio()).append("</td>")
+                .append("<td><a href=\"").append(m.tg()).append("\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"color:inherit;text-decoration:none\">")
+                .append(m.fio()).append("</a></td>")
                 .append("<td>").append(m.vzvod()).append("</td>")
                 .append("<td>").append(m.group()).append("</td>")
                 .append("<td>").append(m.location()).append("</td>")
@@ -84,8 +100,12 @@ public class GdeController {
         return "<html><head><meta charset=\"utf-8\"><link rel=\"stylesheet\" href=\"/styles.css\"></head><body>";
     }
 
+    private String pageHeadWithBack(){
+        return "<html><head><meta charset=\"utf-8\"><link rel=\"stylesheet\" href=\"/styles.css\"></head><body><div class=\"back-button\"><a href=\"/\"><button class=\"btn btn-back\">←</button></a></div>";
+    }
+
     private String basicPage(String text){
-        return pageHead() + "<div class=\"page\"><h2>"+text+"</h2></div></body></html>";
+        return pageHeadWithBack() + "<div class=\"page\"><h2>"+text+"</h2></div></body></html>";
     }
 
 }
