@@ -1,5 +1,12 @@
-Gde search skeleton project. This project provides a minimal Spring Boot skeleton with a simple
-in-memory service that returns "hello world" for searches by default.
+Gde search with UI, connected to database, almost done basic stages. 
+Login|Authorization done
+(need to do security)
+
+design almost done(not needed btw)
+
+Need to add a lot people to database to test it properly
+
+I want to play silksong instead...
 
 Structure:
 - `gde.gde_search` - application entry point
