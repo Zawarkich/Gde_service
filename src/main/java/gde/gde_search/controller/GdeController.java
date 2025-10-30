@@ -208,6 +208,48 @@ public class GdeController {
         }
     }
 
+    @PostMapping("/change-soldier-location")
+    public String changeSoldierLocation(@RequestParam int soldierId, @RequestParam String newLocation, HttpSession session) {
+        GroupMember user = (GroupMember) session.getAttribute("user");
+        if (user == null) {
+            return pageHeadWithBack(null) + "<div class=\"page\"><h2>Необходима авторизация</h2><a href=\"/login-page\"><button class=\"btn\">Войти</button></a></div></body></html>";
+        }
+        
+        // Проверяем, что у пользователя есть права (статус 2 или 3)
+        if (user.presence() == null || (user.presence() != 2 && user.presence() != 3)) {
+            return pageHeadWithBack(user) + "<div class=\"page\"><h2>Недостаточно прав</h2><p>Только пользователи со статусом 2 или 3 могут изменять местоположение солдат.</p><a href=\"/\"><button class=\"btn\">На главную</button></a></div></body></html>";
+        }
+        
+        try {
+            service.updateLocation(soldierId, newLocation.trim());
+            
+            // Обновляем пользователя в сессии, если это он сам
+            GroupMember updatedUser = null;
+            if (user.id() == soldierId) {
+                updatedUser = service.getById(soldierId);
+                session.setAttribute("user", updatedUser);
+            } else {
+                updatedUser = user;
+            }
+            
+            return pageHeadWithBack(updatedUser)
+                    + "<div class=\"page\">"
+                    + authBar(updatedUser)
+                    + "<h2>Местоположение солдата успешно обновлено</h2>"
+                    + "<p>Новое местонахождение: " + newLocation + "</p>"
+                    + "<a href=\"/\"><button class=\"btn\">На главную</button></a>"
+                    + "</div></body></html>";
+        } catch (Exception e) {
+            return pageHeadWithBack(user)
+                    + "<div class=\"page\">"
+                    + authBar(user)
+                    + "<h2>Ошибка при обновлении</h2>"
+                    + "<p>Не удалось обновить местоположение солдата. Попробуйте еще раз.</p>"
+                    + "<a href=\"/\"><button class=\"btn\">На главную</button></a>"
+                    + "</div></body></html>";
+        }
+    }
+
     @PostMapping("/logout")
     public String logout(HttpSession session) {
         session.invalidate();
@@ -238,7 +280,7 @@ public class GdeController {
             // Добавляем столбец с кнопками управления (только для статусов 2 и 3)
             html.append("<td>");
             if (user != null && (user.presence() != null && (user.presence() == 2 || user.presence() == 3))) {
-                html.append("<button onclick=\"changeVzvodLocation(").append(m.vzvod()).append(")\" class=\"btn btn-small\">Изменить взвод</button>");
+                html.append("<button onclick=\"changeSoldierLocation(").append(m.id()).append(", '").append(m.fio()).append("')\" class=\"btn btn-small\">Изменить местоположение</button>");
             } else {
                 html.append("-");
             }
@@ -248,24 +290,24 @@ public class GdeController {
         html.append("</tbody></table>");
         html.append("<div class=\"back-section\"><a href=\"/\" class=\"back-link\">← Назад к главной</a></div>");
         
-        // Добавляем JavaScript для изменения местоположения взвода
+        // Добавляем JavaScript для изменения местоположения отдельного солдата
         html.append("<script>")
-            .append("function changeVzvodLocation(vzvod) {")
-            .append("  var newLocation = prompt('Введите новое местоположение для взвода ' + vzvod + ':');")
+            .append("function changeSoldierLocation(id, fio) {")
+            .append("  var newLocation = prompt('Введите новое местоположение для ' + fio + ':');")
             .append("  if (newLocation && newLocation.trim() !== '') {")
-            .append("    if (confirm('Вы уверены, что хотите изменить местоположение всего взвода ' + vzvod + ' на \"' + newLocation + '\"?')) {")
+            .append("    if (confirm('Вы уверены, что хотите изменить местоположение ' + fio + ' на \"' + newLocation + '\"?')) {")
             .append("      var form = document.createElement('form');")
             .append("      form.method = 'POST';")
-            .append("      form.action = '/change-vzvod-location';")
-            .append("      var vzvodInput = document.createElement('input');")
-            .append("      vzvodInput.type = 'hidden';")
-            .append("      vzvodInput.name = 'vzvod';")
-            .append("      vzvodInput.value = vzvod;")
+            .append("      form.action = '/change-soldier-location';")
+            .append("      var idInput = document.createElement('input');")
+            .append("      idInput.type = 'hidden';")
+            .append("      idInput.name = 'soldierId';")
+            .append("      idInput.value = id;")
             .append("      var locationInput = document.createElement('input');")
             .append("      locationInput.type = 'hidden';")
             .append("      locationInput.name = 'newLocation';")
             .append("      locationInput.value = newLocation;")
-            .append("      form.appendChild(vzvodInput);")
+            .append("      form.appendChild(idInput);")
             .append("      form.appendChild(locationInput);")
             .append("      document.body.appendChild(form);")
             .append("      form.submit();")

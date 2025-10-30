@@ -10,4 +10,4 @@ public class GdeSearchApplication {
         SpringApplication.run(GdeSearchApplication.class, args);
     }
 
-}
+}   
