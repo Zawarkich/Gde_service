@@ -12,6 +12,8 @@ public class LoginEntity {
     private Integer id;
 
     private String login;
+    
+    // Поле для хранения зашифрованного пароля
     private String password;
 
     public Integer getId() {

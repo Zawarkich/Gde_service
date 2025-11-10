@@ -7,7 +7,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface LoginRepository extends JpaRepository<LoginEntity, Integer> {
     
-    LoginEntity findByLoginAndPassword(String login, String password);
-    
+    // Убран метод findByLoginAndPassword, так как пароли теперь шифруются
     LoginEntity findByLogin(String login);
 }

@@ -1,19 +1,71 @@
-Gde search with UI, connected to database, almost done basic stages. 
-Login|Authorization done
-(need to do security)
+# Система РАСХОД с Telegram-ботом
 
-design almost done(not needed btw)
+## Описание
+Система управления личным составом с возможностью отслеживания местоположения и статусов через Telegram-бота.
 
-Need to add a lot people to database to test it properly
+## Особенности
+- Интеграция с Telegram-ботом
+- Шифрование паролей
+- Возможность регистрации/отмены регистрации пользователей
+- Безопасная аутентификация
 
-I want to play silksong instead...
+## Установка
 
-Structure:
-- `gde.gde_search` - application entry point
-- `gde.gde_search.controller.GdeController` - REST endpoint `/api/search?term=...`
-- `gde.gde_search.service.GdeService` - in-memory service
-- `gde.gde_search.entity.GdeArticle` - simple DTO
+1. Установите зависимости:
+   ```bash
+   mvn clean install
+   ```
 
-To run:
-1. Use the Maven wrapper: `./mvnw.cmd spring-boot:run`
-2. Call `http://localhost:8080/api/search?term=example`
+2. Настройте базу данных PostgreSQL в `application.properties`:
+   ```properties
+   spring.datasource.url=jdbc:postgresql://localhost:5432/raskhod_db
+   spring.datasource.username=postgres
+   spring.datasource.password=your_password
+   ```
+
+3. Укажите токен Telegram-бота:
+   ```properties
+   telegram.bot.token=YOUR_TELEGRAM_BOT_TOKEN
+   telegram.bot.username=YOUR_BOT_USERNAME
+   ```
+
+4. Запустите приложение:
+   ```bash
+   mvn spring-boot:run
+   ```
+
+## Конфигурация для продакшена
+Для продакшена рекомендуется:
+- Использовать переменные окружения для хранения чувствительных данных
+- Настроить webhook вместо long polling
+- Обеспечить SSL-соединение
+
+## Команды Telegram-бота
+- `/start` - приветственное сообщение
+- `/help` - справка по командам
+- `/menu` - главное меню с кнопками
+- `/register` - регистрация в системе (требует логин и пароль)
+- `/unregister` - отмена регистрации в системе
+- `/my_location` - показать ваше местоположение
+- `/change_location` - изменить местоположение (с выбором из клавиатуры)
+- `/list_all` - показать общий список
+- `/list_1`, `/list_2`, `/list_3`, `/list_4` - списки по взводам
+- `/status` - показать ваш статус
+
+## Безопасность
+- Пароли хранятся в зашифрованном виде (BCrypt)
+- Проверка длины вводимых данных
+- Ограничение на количество элементов в списках
+- Защита от инъекций через экранирование символов
+
+## Архитектура
+- Telegram-бот реализован с использованием библиотеки `telegrambots`
+- Шифрование паролей реализовано с помощью Spring Security
+- Данные хранятся в PostgreSQL базе данных
+- REST API для взаимодействия между компонентами
+
+## Миграция существующих данных
+Для пользователей с незашифрованными паролями:
+1. Включите временный режим поддержки старых паролей
+2. По мере входа пользователей их пароли будут зашифровываться
+3. После миграции всех пользователей удалите поддержку старого формата

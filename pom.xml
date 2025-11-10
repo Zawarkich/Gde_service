@@ -63,6 +63,18 @@
             <version>1.10.0</version>
             <scope>test</scope>
         </dependency>
+        <!-- Telegram Bot API dependency -->
+        <dependency>
+            <groupId>org.telegram</groupId>
+            <artifactId>telegrambots</artifactId>
+            <version>6.8.0</version>
+        </dependency>
+        
+        <!-- Spring Security for password encoding -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

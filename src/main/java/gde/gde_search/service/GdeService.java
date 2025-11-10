@@ -5,6 +5,7 @@ import gde.gde_search.entity.LoginEntity;
 import gde.gde_search.model.GroupMember;
 import gde.gde_search.repository.GroupMemberRepository;
 import gde.gde_search.repository.LoginRepository;
+import gde.gde_search.util.PasswordEncoderUtil;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,10 +16,12 @@ public class GdeService {
 
     private final GroupMemberRepository repository;
     private final LoginRepository loginRepository;
+    private final PasswordEncoderUtil passwordEncoderUtil;
 
-    public GdeService(GroupMemberRepository repository, LoginRepository loginRepository) {
+    public GdeService(GroupMemberRepository repository, LoginRepository loginRepository, PasswordEncoderUtil passwordEncoderUtil) {
         this.repository = repository;
         this.loginRepository = loginRepository;
+        this.passwordEncoderUtil = passwordEncoderUtil;
     }
 
     public List<GroupMember> getAll() {
@@ -55,9 +58,33 @@ public class GdeService {
     }
 
     public GroupMember authenticateByLoginAndPassword(String login, String password) {
-        // Сначала проверяем данные в таблице login
-        LoginEntity loginEntity = loginRepository.findByLoginAndPassword(login, password);
+        // Сначала ищем пользователя по логину
+        LoginEntity loginEntity = loginRepository.findByLogin(login);
         if (loginEntity == null) {
+            return null;
+        }
+        
+        String storedPassword = loginEntity.getPassword();
+        
+        // Проверяем, соответствует ли введенный пароль зашифрованному паролю
+        boolean matches = false;
+        
+        if (passwordEncoderUtil.isEncoded(storedPassword)) {
+            // Если пароль уже зашифрован, проверяем с использованием BCrypt
+            matches = passwordEncoderUtil.matches(password, storedPassword);
+        } else {
+            // Если пароль не зашифрован, проверяем напрямую (для миграции старых данных)
+            matches = storedPassword.equals(password);
+            
+            // Если пароль совпал и не был зашифрован, шифруем его и сохраняем
+            if (matches) {
+                String encodedPassword = passwordEncoderUtil.encodePassword(password);
+                loginEntity.setPassword(encodedPassword);
+                loginRepository.save(loginEntity); // Обновляем пароль в базе данных
+            }
+        }
+        
+        if (!matches) {
             return null;
         }
         
@@ -90,6 +117,18 @@ public class GdeService {
                 e.getTg(),
                 e.getPresence()
         );
+    }
+    
+    public GroupMemberEntity findEntityById(int id) {
+        return repository.findById(id).orElse(null);
+    }
+    
+    /**
+     * Удаление регистрации пользователя в Telegram
+     */
+    public void unregisterTelegramUser(Long telegramChatId) {
+        // Метод будет вызываться из Telegram-бота для удаления связи
+        // Реализация в сервисе не требуется, так как это делается в TelegramBotService
     }
 
     public void updateLocation(int id, String newLocation) {
