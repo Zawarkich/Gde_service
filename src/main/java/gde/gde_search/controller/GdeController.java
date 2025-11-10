@@ -98,15 +98,21 @@ public class GdeController {
     @PostMapping("/login")
     public String login(@RequestParam String login, @RequestParam String password,
                         HttpSession session) {
-        GroupMember authenticated = service.authenticateByLoginAndPassword(login, password);
-        if (authenticated == null) {
-            return pageHeadWithBack(null) + "<div class=\"page\"><div class=\"login-container\"><div class=\"subtitle\">Неверные данные</div><a href=\"/login-page\"><button class=\"btn\">Назад</button></a></div></div></body></html>";
+        try {
+            GroupMember authenticated = service.authenticateByLoginAndPassword(login, password);
+            if (authenticated == null) {
+                return pageHeadWithBack(null) + "<div class=\"page\"><div class=\"login-container\"><div class=\"subtitle\">Неверные данные</div><a href=\"/login-page\"><button class=\"btn\">Назад</button></a></div></div></body></html>";
+            }
+            session.setAttribute("user", authenticated);
+            return pageHead(authenticated)
+                    + "<div class=\"page\">" + authBar(authenticated)
+                    + "<h2>Вход выполнен</h2><a href=\"/\"><button class=\"btn\">На главную</button></a>"
+                    + "</div></body></html>";
+        } catch (Exception e) {
+            System.err.println("Login error: " + e.getMessage());
+            e.printStackTrace();
+            return pageHeadWithBack(null) + "<div class=\"page\"><div class=\"login-container\"><div class=\"subtitle\">Ошибка при авторизации. Повторите попытку.</div><a href=\"/login-page\"><button class=\"btn\">Назад</button></a></div></div></body></html>";
         }
-        session.setAttribute("user", authenticated);
-        return pageHead(authenticated)
-                + "<div class=\"page\">" + authBar(authenticated)
-                + "<h2>Вход выполнен</h2><a href=\"/\"><button class=\"btn\">На главную</button></a>"
-                + "</div></body></html>";
     }
 
     @GetMapping("/change-location")

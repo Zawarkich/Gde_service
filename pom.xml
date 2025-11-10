@@ -70,10 +70,16 @@
             <version>6.8.0</version>
         </dependency>
         
-        <!-- Spring Security for password encoding -->
+        <!-- JAXB API for Hibernate compatibility -->
         <dependency>
-            <groupId>org.springframework.security</groupId>
-            <artifactId>spring-security-core</artifactId>
+            <groupId>javax.xml.bind</groupId>
+            <artifactId>jaxb-api</artifactId>
+            <version>2.3.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>4.0.4</version>
         </dependency>
     </dependencies>
 
