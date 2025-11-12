@@ -74,8 +74,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Обработка команд
+    /*
+    Обработка команд
      */
     private void handleCommand(Long chatId, String command) {
         try {
@@ -143,8 +143,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Обработка текстовых сообщений (не команд)
+    /*
+    Обработка текстовых сообщений (не команд)
      */
     private void handleText(Long chatId, String text) {
         try {
@@ -188,8 +188,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Обработка callback-запросов от inline-кнопок
+    /*
+    Обработка callback-запросов от inline-кнопок
      */
     private void handleCallback(Long chatId, String callbackData) {
         try {
@@ -225,8 +225,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка приветственного сообщения
+    /*
+     Отправка приветственного сообщения
      */
     private void sendStartMessage(Long chatId) {
         String message = "Привет! Это бот для системы РАСХОД.\n" +
@@ -236,8 +236,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sendMessage(chatId, message);
     }
     
-    /**
-     * Отправка справки
+    /*
+     Отправка справки
      */
     private void sendHelpMessage(Long chatId) {
         String message = "Доступные команды:\n" +
@@ -258,15 +258,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sendMessage(chatId, message);
     }
     
-    /**
-     * Получение пользователя системы по Telegram ID
+    /*
+     Получение пользователя системы по Telegram ID
      */
     private TelegramUser getTelegramUser(Long chatId) {
         return telegramUserRepository.findByTelegramChatId(chatId);
     }
     
-    /**
-     * Отправка текущего местоположения пользователя
+    /*
+     Отправка текущего местоположения пользователя
      */
     private void sendMyLocation(Long chatId) {
         TelegramUser telegramUser = getTelegramUser(chatId);
@@ -282,8 +282,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка общего списка
+    /*
+     Отправка общего списка
      */
     private void sendAllList(Long chatId) {
         try {
@@ -318,8 +318,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка списка по взводу
+    /*
+     Отправка списка по взводу
      */
     private void sendVzvodList(Long chatId, int vzvod) {
         try {
@@ -353,8 +353,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка статуса пользователя
+    /*
+      Отправка статуса пользователя
      */
     private void sendStatus(Long chatId) {
         TelegramUser telegramUser = getTelegramUser(chatId);
@@ -369,8 +369,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Обновление местоположения
+    /*
+      Обновление местоположения
      */
     private void updateLocation(Long chatId, String newLocation) {
         if (newLocation == null || newLocation.trim().length() == 0 || newLocation.trim().length() > 100) {
@@ -392,8 +392,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Регистрация пользователя (сопоставление Telegram ID с аккаунтом в системе)
+    /*
+    Регистрация пользователя (сопоставление Telegram ID с аккаунтом в системе)
      */
     private void registerUser(Long chatId, String login, String password) {
         try {
@@ -428,8 +428,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отмена регистрации пользователя (удаление связи Telegram ID с аккаунтом в системе)
+    /*
+     Отмена регистрации пользователя (удаление связи Telegram ID с аккаунтом в системе)
      */
     private void unregisterUser(Long chatId) {
         try {
@@ -446,8 +446,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Вспомогательный метод для получения текста статуса по цифровому значению
+    /*
+     Вспомогательный метод для получения текста статуса по цифровому значению
      */
     private String getPresenceText(Integer presence) {
         if (presence == null) return null;
@@ -461,8 +461,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка сообщения пользователю
+    /*
+     Отправка сообщения пользователю
      */
     private void sendMessage(Long chatId, String text) {
         SendMessage message = SendMessage.builder()
@@ -477,8 +477,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка сообщения с inline-клавиатурой
+    /*
+    Отправка сообщения с inline-клавиатурой
      */
     private void sendMessageWithInlineKeyboard(Long chatId, String text, List<List<InlineKeyboardButton>> keyboard) {
         SendMessage message = SendMessage.builder()
@@ -494,8 +494,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка клавиатуры с выбором местоположения
+    /*
+    Отправка клавиатуры с выбором местоположения
      */
     private void sendLocationKeyboard(Long chatId) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -531,8 +531,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sendMessageWithInlineKeyboard(chatId, "Выберите новое местоположение:", keyboard);
     }
     
-    /**
-     * Расширенное изменение местоположения с клавиатурой
+    /*
+    Расширенное изменение местоположения с клавиатурой
      */
     private void changeLocationWithKeyboard(Long chatId) {
         TelegramUser telegramUser = getTelegramUser(chatId);
@@ -543,8 +543,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         }
     }
     
-    /**
-     * Отправка клавиатуры с выбором взвода
+    /*
+    Отправка клавиатуры с выбором взвода
      */
     private void sendVzvodSelectionKeyboard(Long chatId) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -579,8 +579,8 @@ public class TelegramBotService extends TelegramLongPollingBot {
         sendMessageWithInlineKeyboard(chatId, "Выберите взвод для просмотра:", keyboard);
     }
     
-    /**
-     * Отправка меню с основными действиями
+    /*
+    Отправка меню с основными действиями
      */
     private void sendMainMenu(Long chatId) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
