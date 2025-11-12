@@ -23,41 +23,41 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TelegramBotService extends TelegramLongPollingBot {
-
+    
     private static final Logger logger = LoggerFactory.getLogger(TelegramBotService.class);
-
+    
     private final GdeService gdeService;
     private final TelegramUserRepository telegramUserRepository;
-
+    
     // Для отслеживания состояния пользователей (например, при вводе нового местоположения)
     private final Map<Long, String> userStates = new ConcurrentHashMap<>();
-
+    
     public TelegramBotService(GdeService gdeService, TelegramUserRepository telegramUserRepository) {
         this.gdeService = gdeService;
         this.telegramUserRepository = telegramUserRepository;
     }
-
+    
     @Override
     public String getBotUsername() {
         // Здесь должно быть имя вашего бота (его можно получить у @BotFather)
         return "Raskhodd_bot";
     }
-
+    
     @Override
     public String getBotToken() {
         // Токен бота, полученный от @BotFather
-        return System.getenv("TELEGRAM_BOT_TOKEN") != null ?
-            System.getenv("TELEGRAM_BOT_TOKEN") :
+        return System.getenv("TELEGRAM_BOT_TOKEN") != null ? 
+            System.getenv("TELEGRAM_BOT_TOKEN") : 
             "8553661923:AAHpQSRQPQKJvz0-9tlu_BscJk505uBIoTA"; // Замените на токен вашего бота
     }
-
+    
     @Override
     public void onUpdateReceived(Update update) {
         if (update.hasMessage() && update.getMessage().hasText()) {
             Message message = update.getMessage();
             Long chatId = message.getChatId();
             String text = message.getText();
-
+            
             // Обработка команд
             if (text.startsWith("/")) {
                 handleCommand(chatId, text);
@@ -69,11 +69,11 @@ public class TelegramBotService extends TelegramLongPollingBot {
             // Обработка нажатий inline-кнопок
             String callbackData = update.getCallbackQuery().getData();
             Long chatId = update.getCallbackQuery().getMessage().getChatId();
-
+            
             handleCallback(chatId, callbackData);
         }
     }
-
+    
     /**
      * Обработка команд
      */
@@ -142,7 +142,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Произошла ошибка при обработке команды.");
         }
     }
-
+    
     /**
      * Обработка текстовых сообщений (не команд)
      */
@@ -187,7 +187,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Произошла ошибка при обработке сообщения.");
         }
     }
-
+    
     /**
      * Обработка callback-запросов от inline-кнопок
      */
@@ -224,7 +224,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Произошла ошибка при обработке запроса.");
         }
     }
-
+    
     /**
      * Отправка приветственного сообщения
      */
@@ -232,10 +232,10 @@ public class TelegramBotService extends TelegramLongPollingBot {
         String message = "Привет! Это бот для системы РАСХОД.\n" +
                 "Я помогу вам управлять списком личного состава и отслеживать их местоположение.\n\n" +
                 "Для получения списка команд введите /help";
-
+        
         sendMessage(chatId, message);
     }
-
+    
     /**
      * Отправка справки
      */
@@ -254,17 +254,17 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 "/list_3 - показать список 3-го взвода\n" +
                 "/list_4 - показать список 4-го взвода\n" +
                 "/status - показать ваш статус";
-
+        
         sendMessage(chatId, message);
     }
-
+    
     /**
      * Получение пользователя системы по Telegram ID
      */
     private TelegramUser getTelegramUser(Long chatId) {
         return telegramUserRepository.findByTelegramChatId(chatId);
     }
-
+    
     /**
      * Отправка текущего местоположения пользователя
      */
@@ -273,15 +273,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (telegramUser != null && telegramUser.getMember() != null) {
             GroupMemberEntity member = telegramUser.getMember();
             String presenceText = getPresenceText(member.getPresence());
-            String message = String.format("Ваше текущее местоположение: %s %s",
-                member.getLocation(),
+            String message = String.format("Ваше текущее местоположение: %s %s", 
+                member.getLocation(), 
                 presenceText != null ? "(" + presenceText + ")" : "");
             sendMessage(chatId, message);
         } else {
             sendMessage(chatId, "Ваш Telegram аккаунт не сопоставлен с аккаунтом в системе. Обратитесь к администратору для регистрации.");
         }
     }
-
+    
     /**
      * Отправка общего списка
      */
@@ -293,15 +293,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 sendMessage(chatId, "Слишком большой список для отправки. Обратитесь к администратору.");
                 return;
             }
-
+            
             StringBuilder message = new StringBuilder("Общий список личного состава:\n\n");
-
+            
             for (GroupMember member : members) {
                 // Экранируем потенциально опасные символы
                 String fio = member.fio() != null ? member.fio().replace("*", "").replace("_", "").replace("[", "").replace("]", "") : "";
                 String group = member.group() != null ? member.group().replace("*", "").replace("_", "").replace("[", "").replace("]", "") : "";
                 String location = member.location() != null ? member.location().replace("*", "").replace("_", "").replace("[", "").replace("]", "") : "";
-
+                
                 String presenceText = getPresenceText(member.presence());
                 message.append(String.format("• %s (взвод %d, %s) - %s %s\n",
                         fio,
@@ -310,14 +310,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
                         location,
                         presenceText != null ? "(" + presenceText + ")" : ""));
             }
-
+            
             sendMessage(chatId, message.toString());
         } catch (Exception e) {
             logger.error("Error sending all list", e);
             sendMessage(chatId, "Произошла ошибка при получении списка.");
         }
     }
-
+    
     /**
      * Отправка списка по взводу
      */
@@ -329,15 +329,15 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 sendMessage(chatId, "Слишком большой список для отправки. Обратитесь к администратору.");
                 return;
             }
-
+            
             StringBuilder message = new StringBuilder(String.format("Список %d-го взвода:\n\n", vzvod));
-
+            
             for (GroupMember member : members) {
                 // Экранируем потенциально опасные символы
                 String fio = member.fio() != null ? member.fio().replace("*", "").replace("_", "").replace("[", "").replace("]", "") : "";
                 String group = member.group() != null ? member.group().replace("*", "").replace("_", "").replace("[", "").replace("]", "") : "";
                 String location = member.location() != null ? member.location().replace("*", "").replace("_", "").replace("[", "").replace("]", "") : "";
-
+                
                 String presenceText = getPresenceText(member.presence());
                 message.append(String.format("• %s (%s) - %s %s\n",
                         fio,
@@ -345,14 +345,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
                         location,
                         presenceText != null ? "(" + presenceText + ")" : ""));
             }
-
+            
             sendMessage(chatId, message.toString());
         } catch (Exception e) {
             logger.error("Error sending vzvod list", e);
             sendMessage(chatId, String.format("Произошла ошибка при получении списка %d-го взвода.", vzvod));
         }
     }
-
+    
     /**
      * Отправка статуса пользователя
      */
@@ -361,14 +361,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
         if (telegramUser != null && telegramUser.getMember() != null) {
             GroupMemberEntity member = telegramUser.getMember();
             String presenceText = getPresenceText(member.getPresence());
-            String message = String.format("Ваш статус: %s",
+            String message = String.format("Ваш статус: %s", 
                 presenceText != null ? presenceText : "не определен");
             sendMessage(chatId, message);
         } else {
             sendMessage(chatId, "Ваш Telegram аккаунт не сопоставлен с аккаунтом в системе. Обратитесь к администратору для регистрации.");
         }
     }
-
+    
     /**
      * Обновление местоположения
      */
@@ -377,7 +377,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Недопустимое местоположение. Должно быть от 1 до 100 символов.");
             return;
         }
-
+        
         TelegramUser telegramUser = getTelegramUser(chatId);
         if (telegramUser != null && telegramUser.getMember() != null) {
             try {
@@ -391,7 +391,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Ваш Telegram аккаунт не сопоставлен с аккаунтом в системе. Обратитесь к администратору для регистрации.");
         }
     }
-
+    
     /**
      * Регистрация пользователя (сопоставление Telegram ID с аккаунтом в системе)
      */
@@ -427,7 +427,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Произошла ошибка при регистрации.");
         }
     }
-
+    
     /**
      * Отмена регистрации пользователя (удаление связи Telegram ID с аккаунтом в системе)
      */
@@ -445,13 +445,13 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Произошла ошибка при отмене регистрации.");
         }
     }
-
+    
     /**
      * Вспомогательный метод для получения текста статуса по цифровому значению
      */
     private String getPresenceText(Integer presence) {
         if (presence == null) return null;
-
+        
         switch (presence) {
             case 0: return "[отсутствует]";
             case 1: return "[на месте]";
@@ -460,7 +460,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
             default: return "[неизвестный статус]";
         }
     }
-
+    
     /**
      * Отправка сообщения пользователю
      */
@@ -469,14 +469,14 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .chatId(String.valueOf(chatId))
                 .text(text)
                 .build();
-
+        
         try {
             execute(message);
         } catch (Exception e) {
             logger.error("Error sending message", e);
         }
     }
-
+    
     /**
      * Отправка сообщения с inline-клавиатурой
      */
@@ -486,51 +486,51 @@ public class TelegramBotService extends TelegramLongPollingBot {
                 .text(text)
                 .replyMarkup(InlineKeyboardMarkup.builder().keyboard(keyboard).build())
                 .build();
-
+        
         try {
             execute(message);
         } catch (Exception e) {
             logger.error("Error sending message with keyboard", e);
         }
     }
-
+    
     /**
      * Отправка клавиатуры с выбором местоположения
      */
     private void sendLocationKeyboard(Long chatId) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
+        
         // Первая строка кнопок
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         InlineKeyboardButton button1 = new InlineKeyboardButton();
         button1.setText("На месте");
         button1.setCallbackData("loc_На месте");
         row1.add(button1);
-
+        
         InlineKeyboardButton button2 = new InlineKeyboardButton();
         button2.setText("Болен");
         button2.setCallbackData("loc_Болен");
         row1.add(button2);
-
+        
         keyboard.add(row1);
-
+        
         // Вторая строка кнопок
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         InlineKeyboardButton button3 = new InlineKeyboardButton();
         button3.setText("Наряд");
         button3.setCallbackData("loc_Наряд");
         row2.add(button3);
-
+        
         InlineKeyboardButton button4 = new InlineKeyboardButton();
         button4.setText("Командировка");
         button4.setCallbackData("loc_Командировка");
         row2.add(button4);
-
+        
         keyboard.add(row2);
-
+        
         sendMessageWithInlineKeyboard(chatId, "Выберите новое местоположение:", keyboard);
     }
-
+    
     /**
      * Расширенное изменение местоположения с клавиатурой
      */
@@ -542,77 +542,77 @@ public class TelegramBotService extends TelegramLongPollingBot {
             sendMessage(chatId, "Ваш Telegram аккаунт не сопоставлен с аккаунтом в системе. Используйте /register для регистрации.");
         }
     }
-
+    
     /**
      * Отправка клавиатуры с выбором взвода
      */
     private void sendVzvodSelectionKeyboard(Long chatId) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
+        
         // Создаем 2 строки по 2 кнопки в каждой
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         InlineKeyboardButton button1 = new InlineKeyboardButton();
         button1.setText("1-й взвод");
         button1.setCallbackData("vzvod_1");
         row1.add(button1);
-
+        
         InlineKeyboardButton button2 = new InlineKeyboardButton();
         button2.setText("2-й взвод");
         button2.setCallbackData("vzvod_2");
         row1.add(button2);
-
+        
         keyboard.add(row1);
-
+        
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         InlineKeyboardButton button3 = new InlineKeyboardButton();
         button3.setText("3-й взвод");
         button3.setCallbackData("vzvod_3");
         row2.add(button3);
-
+        
         InlineKeyboardButton button4 = new InlineKeyboardButton();
         button4.setText("4-й взвод");
         button4.setCallbackData("vzvod_4");
         row2.add(button4);
-
+        
         keyboard.add(row2);
-
+        
         sendMessageWithInlineKeyboard(chatId, "Выберите взвод для просмотра:", keyboard);
     }
-
+    
     /**
      * Отправка меню с основными действиями
      */
     private void sendMainMenu(Long chatId) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-
+        
         // Первая строка кнопок
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         InlineKeyboardButton locationButton = new InlineKeyboardButton();
         locationButton.setText("Моё местоположение");
         locationButton.setCallbackData("my_location");
         row1.add(locationButton);
-
+        
         InlineKeyboardButton statusButton = new InlineKeyboardButton();
         statusButton.setText("Мой статус");
         statusButton.setCallbackData("status");
         row1.add(statusButton);
-
+        
         keyboard.add(row1);
-
+        
         // Вторая строка кнопок
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         InlineKeyboardButton changeLocationButton = new InlineKeyboardButton();
         changeLocationButton.setText("Изменить местоположение");
         changeLocationButton.setCallbackData("change_loc");
         row2.add(changeLocationButton);
-
+        
         InlineKeyboardButton listButton = new InlineKeyboardButton();
         listButton.setText("Списки взводов");
         listButton.setCallbackData("lists");
         row2.add(listButton);
-
+        
         keyboard.add(row2);
-
+        
         sendMessageWithInlineKeyboard(chatId, "Выберите действие:", keyboard);
     }
 }

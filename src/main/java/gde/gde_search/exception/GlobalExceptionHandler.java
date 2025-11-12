@@ -110,7 +110,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return buildResponseEntity(apiError);
     }
 
-    // Handle MethodArgumentNotValidException
+    /* // Handle MethodArgumentNotValidException
+    @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
             MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
@@ -126,6 +127,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     // Handle BindException
+    @Override
     protected ResponseEntity<Object> handleBindException(
             BindException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
 
@@ -138,7 +140,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         apiError.setSubErrors(fieldErrors);
         return buildResponseEntity(apiError);
-    }
+    }*/
 
 
     private ApiSubError mapConstraintViolationToFieldError(ConstraintViolation<?> violation) {
