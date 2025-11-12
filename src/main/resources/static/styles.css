@@ -400,7 +400,6 @@ label {
   margin-bottom: 8px;
 }
 
-/* Утилиты */
 .help-link {
   text-align: center;
   margin-top: var(--spacing-lg);
@@ -418,7 +417,6 @@ label {
   text-decoration: underline;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
   .page {
     padding: var(--spacing);
