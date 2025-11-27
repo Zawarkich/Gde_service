@@ -4,11 +4,13 @@ import gde.gde_search.service.telegram.TelegramBotService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
 
 @Configuration
+@Profile("!test") // Only load this configuration when not in test profile
 public class TelegramBotConfig {
 
     @Value("${telegram.bot.token:8553661923:AAHpQSRQPQKJvz0-9tlu_BscJk505uBIoTA}") // Замените на токен вашего бота

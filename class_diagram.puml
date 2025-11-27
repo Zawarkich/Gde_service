@@ -1,0 +1,288 @@
+@startuml
+!theme plain
+
+package "gde.gde_search" {
+  class GdeSearchApplication {
+    + static void main(String[] args)
+  }
+
+  package "controller" {
+    class GdeController {
+      - GdeService service
+      + String home(HttpSession)
+      + String vzv1(HttpSession)
+      + String vzv2(HttpSession)
+      + String vzv3(HttpSession)
+      + String vzv4(HttpSession)
+      + String all(HttpSession)
+      + String loginPage(HttpSession)
+      + String login(String, String, HttpSession)
+      + String changeLocationPage(HttpSession)
+      + String updateLocation(String, HttpSession)
+      + String changeVzvodLocation(int, String, HttpSession)
+      + String changeSoldierLocation(int, String, HttpSession)
+      + String logout(HttpSession)
+    }
+
+    class ErrorTestController {
+      + String testError()
+    }
+
+    class TelegramWebhookController {
+      - TelegramBotService getTelegramBotService()
+      + String handleWebhook(Update)
+    }
+  }
+
+  package "service" {
+    class GdeService {
+      - GroupMemberRepository repository
+      - LoginRepository loginRepository
+      + List<GroupMember> getAll()
+      + List<GroupMember> getByVzvod(int vzvod)
+      + GroupMember authenticateByLoginAndPassword(String, String)
+      + GroupMember getById(int id)
+      + GroupMemberEntity findEntityById(int id)
+      + void unregisterTelegramUser(Long)
+      + void updateLocation(int, String)
+      + void updateVzvodLocation(int, String)
+    }
+  }
+
+  package "service.telegram" {
+    class TelegramBotService {
+      - GdeService gdeService
+      - TelegramUserRepository telegramUserRepository
+      - Map<Long, String> userStates
+      + String getBotUsername()
+      + String getBotToken()
+      + void onUpdateReceived(Update)
+      - void handleCommand(Long, String)
+      - void handleText(Long, String)
+      - void handleCallback(Long, String)
+      - void sendMessage(Long, String)
+      # void sendStartMessage(Long)
+      # void sendHelpMessage(Long)
+      # void sendMyLocation(Long)
+      # void sendAllList(Long)
+      # void sendVzvodList(int, Long)
+      # void sendStatus(Long)
+      # void updateLocation(Long, String)
+      # void registerUser(Long, String, String)
+      # void unregisterUser(Long)
+      # void sendMainMenu(Long)
+      # void sendLocationKeyboard(Long)
+      # void sendVzvodSelectionKeyboard(Long)
+    }
+  }
+
+  package "model" {
+    class GroupMember {
+      - int id
+      - String fio
+      - int vzvod
+      - String group
+      - String location
+      - String tg
+      - Integer presence
+    }
+  }
+
+  package "entity" {
+    class GroupMemberEntity {
+      - Integer id
+      - String fio
+      - Integer vzvod
+      - String groupCode
+      - String location
+      - String tg
+      - Integer presence
+      + getId()
+      + setId(Integer)
+      + getFio()
+      + setFio(String)
+      + getVzvod()
+      + setVzvod(Integer)
+      + getGroupCode()
+      + setGroupCode(String)
+      + getLocation()
+      + setLocation(String)
+      + getTg()
+      + setTg(String)
+      + getPresence()
+      + setPresence(Integer)
+    }
+
+    class LoginEntity {
+      - Integer id
+      - String login
+      - String password
+      + getId()
+      + setId(Integer)
+      + getLogin()
+      + setLogin(String)
+      + getPassword()
+      + setPassword(String)
+    }
+  }
+
+  package "entity.telegram" {
+    class TelegramUser {
+      - Long id
+      - Long telegramChatId
+      - GroupMemberEntity member
+      + getId()
+      + setId(Long)
+      + getTelegramChatId()
+      + setTelegramChatId(Long)
+      + getMember()
+      + setMember(GroupMemberEntity)
+    }
+  }
+
+  package "repository" {
+    interface GroupMemberRepository {
+      + List<GroupMemberEntity> findByVzvod(Integer)
+      + List<GroupMemberEntity> findByVzvodOrderByFioAsc(Integer)
+      + GroupMemberEntity findFirstByFioIgnoreCase(String)
+    }
+
+    interface LoginRepository {
+      + LoginEntity findByLoginAndPassword(String, String)
+      + LoginEntity findByLogin(String)
+    }
+  }
+
+  package "repository.telegram" {
+    interface TelegramUserRepository {
+      + TelegramUser findByTelegramChatId(Long)
+      + void deleteByTelegramChatId(Long)
+    }
+  }
+
+  package "config" {
+    class TelegramBotConfig {
+      - TelegramBotService telegramBotService
+      + BotSession getBotSession()
+    }
+  }
+
+  package "components" {
+    class AppConfig {
+      + RestTemplate restTemplate()
+    }
+  }
+
+  package "exception" {
+    class ApiError {
+      - int status
+      - String error
+      - String path
+      - long timestamp
+      - List<ApiSubError> subErrors
+    }
+
+    class ApiSubError {
+      <<abstract>>
+      - String object
+      - String field
+      - Object rejectedValue
+      - String message
+    }
+
+    class BadRequestException {
+      - String code
+    }
+
+    class ResourceNotFoundException {
+      - String code
+    }
+
+    class ConflictException {
+      - String code
+    }
+
+    class UnprocessableEntityException {
+      - String code
+    }
+
+    class BadGatewayException {
+      - String code
+    }
+
+    class ServiceUnavailableException {
+      - String code
+    }
+
+    class InternalServerException {
+      - String code
+    }
+
+    class FieldError {
+      - String objectName
+      - String field
+      - Object rejectedValue
+      - String message
+    }
+
+    class GlobalExceptionHandler {
+      - Logger log
+      + ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException)
+      + ResponseEntity<ApiError> handleConflict(ConflictException)
+      + ResponseEntity<ApiError> handleUnprocessableEntity(UnprocessableEntityException)
+      + ResponseEntity<ApiError> handleBadGateway(BadGatewayException)
+      + ResponseEntity<ApiError> handleServiceUnavailable(ServiceUnavailableException)
+      + ResponseEntity<ApiError> handleInternalServer(InternalServerException)
+      + ResponseEntity<ApiError> handleBadRequest(BadRequestException)
+      + ResponseEntity<ApiError> handleGeneric(Exception)
+    }
+  }
+}
+
+' Relationships
+GdeController --> GdeService
+GdeController --> GroupMember
+TelegramWebhookController --> TelegramBotService
+GdeService --> GroupMemberRepository
+GdeService --> LoginRepository
+GdeService --> GroupMemberEntity
+GdeService --> GroupMember
+TelegramBotService --> GdeService
+TelegramBotService --> TelegramUserRepository
+TelegramBotService --> GroupMemberEntity
+TelegramBotService --> TelegramUser
+TelegramBotService --> GroupMember
+GroupMemberEntity ||--o{ LoginEntity : "id"
+GroupMemberEntity ||--o{ TelegramUser : "member_id"
+GroupMemberRepository <|-- GroupMemberEntity
+LoginRepository <|-- LoginEntity
+TelegramUserRepository <|-- TelegramUser
+TelegramBotService --|> "org.telegram.telegrambots.bots.TelegramLongPollingBot"
+ApiError ||--o{ ApiSubError
+ApiSubError <|-- FieldError
+GlobalExceptionHandler --> ApiError
+GlobalExceptionHandler --> BadRequestException
+GlobalExceptionHandler --> ResourceNotFoundException
+GlobalExceptionHandler --> ConflictException
+GlobalExceptionHandler --> UnprocessableEntityException
+GlobalExceptionHandler --> BadGatewayException
+GlobalExceptionHandler --> ServiceUnavailableException
+GlobalExceptionHandler --> InternalServerException
+
+' Stereotypes
+GdeService ..> "org.springframework.stereotype.Service"
+GdeController ..> "org.springframework.web.bind.annotation.RestController"
+GdeController ..> "org.springframework.web.bind.annotation.GetMapping"
+GdeController ..> "org.springframework.web.bind.annotation.PostMapping"
+TelegramBotService ..> "org.springframework.stereotype.Service"
+GroupMemberRepository ..> "org.springframework.data.jpa.repository.JpaRepository"
+LoginRepository ..> "org.springframework.data.jpa.repository.JpaRepository"
+TelegramUserRepository ..> "org.springframework.data.jpa.repository.JpaRepository"
+GroupMemberEntity ..> "jakarta.persistence.Entity"
+GroupMemberEntity ..> "jakarta.persistence.Table"
+LoginEntity ..> "jakarta.persistence.Entity"
+LoginEntity ..> "jakarta.persistence.Table"
+TelegramUser ..> "jakarta.persistence.Entity"
+TelegramUser ..> "jakarta.persistence.Table"
+
+@enduml

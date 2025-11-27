@@ -395,7 +395,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     /*
     Регистрация пользователя (сопоставление Telegram ID с аккаунтом в системе)
      */
-    private void registerUser(Long chatId, String login, String password) {
+    public void registerUser(Long chatId, String login, String password) {
         try {
             GroupMember authenticated = gdeService.authenticateByLoginAndPassword(login, password);
             if (authenticated != null) {
@@ -431,7 +431,7 @@ public class TelegramBotService extends TelegramLongPollingBot {
     /*
      Отмена регистрации пользователя (удаление связи Telegram ID с аккаунтом в системе)
      */
-    private void unregisterUser(Long chatId) {
+    public void unregisterUser(Long chatId) {
         try {
             TelegramUser telegramUser = telegramUserRepository.findByTelegramChatId(chatId);
             if (telegramUser != null) {

@@ -1,0 +1,99 @@
+@startuml
+!theme plain
+
+package "Controllers" {
+  class GdeController {
+    - GdeService service
+    + home(HttpSession)
+    + vzv1(HttpSession)
+    + login(String, String, HttpSession)
+    + updateLocation(String, HttpSession)
+  }
+
+  class TelegramWebhookController {
+    - TelegramBotService telegramBotService
+    + handleWebhook(Update)
+  }
+}
+
+package "Services" {
+  class GdeService {
+    - GroupMemberRepository repository
+    - LoginRepository loginRepository
+    + getAll()
+    + getByVzvod(int)
+    + authenticateByLoginAndPassword(String, String)
+    + updateLocation(int, String)
+  }
+
+  class TelegramBotService {
+    - GdeService gdeService
+    - TelegramUserRepository telegramUserRepository
+    + getBotUsername()
+    + getBotToken()
+    + onUpdateReceived(Update)
+  }
+}
+
+package "Entities" {
+  class GroupMemberEntity {
+    - Integer id
+    - String fio
+    - Integer vzvod
+    - String location
+    - Integer presence
+  }
+
+  class LoginEntity {
+    - Integer id
+    - String login
+    - String password
+  }
+
+  class TelegramUser {
+    - Long id
+    - Long telegramChatId
+    - GroupMemberEntity member
+  }
+}
+
+package "Repositories" {
+  interface GroupMemberRepository {
+    + findByVzvodOrderByFioAsc(Integer)
+  }
+
+  interface LoginRepository {
+    + findByLoginAndPassword(String, String)
+  }
+
+  interface TelegramUserRepository {
+    + findByTelegramChatId(Long)
+  }
+}
+
+package "Model" {
+  class GroupMember {
+    - int id
+    - String fio
+    - int vzvod
+    - String group
+    - String location
+    - Integer presence
+  }
+}
+
+' Relationships
+GdeController --> GdeService
+TelegramWebhookController --> TelegramBotService
+GdeService --> GroupMemberRepository
+GdeService --> LoginRepository
+GdeService --> GroupMemberEntity
+GdeService --> GroupMember
+TelegramBotService --> GdeService
+TelegramBotService --> TelegramUserRepository
+TelegramBotService --> GroupMemberEntity
+TelegramBotService --> TelegramUser
+LoginEntity ||--|| GroupMemberEntity : "id"
+TelegramUser }o--|| GroupMemberEntity : "member"
+
+@enduml
