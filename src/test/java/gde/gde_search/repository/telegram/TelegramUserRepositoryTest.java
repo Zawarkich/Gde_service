@@ -2,7 +2,6 @@ package gde.gde_search.repository.telegram;
 
 import gde.gde_search.entity.GroupMemberEntity;
 import gde.gde_search.entity.telegram.TelegramUser;
-import gde.gde_search.repository.telegram.TelegramUserRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;

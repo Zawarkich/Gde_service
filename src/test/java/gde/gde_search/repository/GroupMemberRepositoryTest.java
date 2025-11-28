@@ -1,7 +1,6 @@
 package gde.gde_search.repository;
 
 import gde.gde_search.entity.GroupMemberEntity;
-import gde.gde_search.entity.LoginEntity;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
