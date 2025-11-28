@@ -1,6 +1,6 @@
 package gde.gde_search.controller;
 
-import gde.gde_search.service.telegram.TelegramBotService;
+import gde.gde_search.service.telegram.TelegramBotServiceInterface;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -10,13 +10,10 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 @RestController
 public class TelegramWebhookController {
 
-    private final TelegramBotService telegramBotService;
+    private final TelegramBotServiceInterface telegramBotService;
 
-    public TelegramBotService getTelegramBotService() {
-        return telegramBotService;
-    }
 
-    public TelegramWebhookController(TelegramBotService telegramBotService) {
+    public TelegramWebhookController(TelegramBotServiceInterface telegramBotService) {
         this.telegramBotService = telegramBotService;
     }
 

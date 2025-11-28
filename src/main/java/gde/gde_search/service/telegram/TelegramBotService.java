@@ -22,7 +22,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Service
-public class TelegramBotService extends TelegramLongPollingBot {
+@org.springframework.context.annotation.Profile("!test")
+public class TelegramBotService extends TelegramLongPollingBot implements TelegramBotServiceInterface {
     
     private static final Logger logger = LoggerFactory.getLogger(TelegramBotService.class);
     
